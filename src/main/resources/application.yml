@@ -1,0 +1,47 @@
+server:
+  shutdown: graceful
+  port: 8080
+
+spring:
+  application:
+    name: quickpicks-game-service
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    type: com.zaxxer.hikari.HikariDataSource
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        default_schema: public
+  data:
+    redis:
+      timeout: 2000ms
+  jackson:
+    default-property-inclusion: non_null
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,env
+  endpoint:
+    health:
+      show-details: always
+    env:
+      show-values: always
+
+logging:
+  level:
+    root: INFO
+    io.qplay.quickpicksgameservice: DEBUG
+    org.springframework.jdbc.core.JdbcTemplate: DEBUG
+
+app:
+  feed:
+    api-football:
+      api-key: ${APIFOOTBALL_API_KEY:0d378f4d69ad1d6698862d2a61d28aeb}
+      base-url: https://v3.football.api-sports.io
+  trending:
+    flush-interval: PT5M

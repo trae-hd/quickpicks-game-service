@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASS}
+    hikari:
+      maximum-pool-size: 30
+  data:
+    redis:
+      url: ${REDIS_URL}
+  flyway:
+    enabled: false
+
+app:
+  trending:
+    flush-interval: PT5M
+  security:
+    jwt-secret: ${JWT_SECRET}
+    operator-jwt-secret: ${OPERATOR_JWT_SECRET}

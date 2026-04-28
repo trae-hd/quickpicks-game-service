@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/quickpicks}
+    username: ${DATABASE_USER:postgres}
+    password: ${DATABASE_PASS:postgres}
+    hikari:
+      maximum-pool-size: 10
+  data:
+    redis:
+      url: ${REDIS_URL:redis://localhost:6379}
+  flyway:
+    enabled: true
+
+app:
+  trending:
+    flush-interval: PT1M
+  security:
+    jwt-secret: b64OGr4TFTK/aQ+N99iO6/6+lL3IvEGiAKtDQqMMO5mXTUJtYvYl4CIzdvcNeXORJE2PiqOJNUpXBtOPodeXYA==
+    operator-jwt-secret: PIgDApK+126MWk/04zWCJBYShenl5GUqLrM57r/rQIlFCjwmgE7Q8xWsBke4TqaytlyqQEaWfRAxeK3Qx2ozMw==
