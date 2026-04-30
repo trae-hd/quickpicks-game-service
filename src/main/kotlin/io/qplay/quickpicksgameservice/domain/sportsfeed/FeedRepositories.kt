@@ -11,3 +11,8 @@ interface FeedFieldMappingRepository : JpaRepository<FeedFieldMapping, java.util
 interface FeedStatusTranslationRepository : JpaRepository<FeedStatusTranslation, java.util.UUID> {
     fun findByProviderId(providerId: String): List<FeedStatusTranslation>
 }
+
+interface FeedLeagueMappingRepository : JpaRepository<FeedLeagueMapping, java.util.UUID> {
+    fun findByProviderId(providerId: String): List<FeedLeagueMapping>
+    fun findByProviderIdAndProviderLeagueId(providerId: String, providerLeagueId: String): FeedLeagueMapping?
+}
