@@ -34,4 +34,11 @@ class ApiFootballClient(
             .retrieve()
             .body(String::class.java) ?: throw RuntimeException("Empty response from api-football")
     }
+
+    fun getCurrentSeasons(): String {
+        return restClient.get()
+            .uri("/leagues?current=true")
+            .retrieve()
+            .body(String::class.java) ?: throw RuntimeException("Empty response from api-football")
+    }
 }
