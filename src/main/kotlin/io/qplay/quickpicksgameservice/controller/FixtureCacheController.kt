@@ -3,12 +3,14 @@ package io.qplay.quickpicksgameservice.controller
 import io.qplay.quickpicksgameservice.domain.sportsfeed.LeagueDto
 import io.qplay.quickpicksgameservice.exception.ApiResponse
 import io.qplay.quickpicksgameservice.service.FixtureCacheService
+import io.qplay.quickpicksgameservice.service.FixtureCacheSyncService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.context.annotation.Profile
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -19,7 +21,8 @@ import org.springframework.web.bind.annotation.RestController
 @PreAuthorize("hasAnyRole('TENANT_ADMIN', 'PLATFORM_ADMIN')")
 @Tag(name = "Admin - Fixture Cache", description = "Fixture cache discovery endpoints for the Slate Builder UI")
 class FixtureCacheController(
-    private val fixtureCacheService: FixtureCacheService
+    private val fixtureCacheService: FixtureCacheService,
+    private val fixtureCacheSyncService: FixtureCacheSyncService
 ) {
     @GetMapping("/seasons")
     @Operation(
@@ -42,5 +45,15 @@ class FixtureCacheController(
     ): ApiResponse<List<LeagueDto>> {
         val leagues = fixtureCacheService.getAvailableLeagues(season)
         return ApiResponse(data = leagues, meta = mapOf("count" to leagues.size))
+    }
+
+    @PostMapping("/fixture-cache/sync")
+    @Operation(
+        summary = "Trigger fixture cache sync",
+        description = "Manually triggers the fixture cache sync. Purges expired entries and fetches the next 14 days of fixtures for all configured leagues."
+    )
+    fun triggerSync(): ApiResponse<String> {
+        fixtureCacheSyncService.sync()
+        return ApiResponse(data = "Sync completed successfully")
     }
 }
