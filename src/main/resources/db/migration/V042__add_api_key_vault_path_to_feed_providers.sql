@@ -1,0 +1,1 @@
+ALTER TABLE feed_providers ADD COLUMN api_key_vault_path TEXT NOT NULL DEFAULT '';
