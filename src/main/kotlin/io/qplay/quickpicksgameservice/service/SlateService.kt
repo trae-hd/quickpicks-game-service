@@ -83,18 +83,24 @@ class SlateService(
         return savedSlate
     }
 
+    @Transactional(readOnly = true)
     fun getSlate(slateId: UUID): Slate {
-        return slateRepository.findById(slateId)
+        val slate = slateRepository.findById(slateId)
             .orElseThrow { IllegalArgumentException("Slate not found") }
+        slate.matches.size // force lazy collection init before session closes
+        return slate
     }
 
+    @Transactional(readOnly = true)
     fun listByStatus(status: SlateStatus?): List<Slate> {
         val tenantId = TenantContext.getTenantId() ?: throw IllegalStateException("No tenant context")
-        return if (status != null) {
+        val slates = if (status != null) {
             slateRepository.findByTenantIdAndStatus(tenantId, status)
         } else {
             slateRepository.findByTenantId(tenantId)
         }
+        slates.forEach { it.matches.size } // force lazy collection init before session closes
+        return slates
     }
 
     @Transactional

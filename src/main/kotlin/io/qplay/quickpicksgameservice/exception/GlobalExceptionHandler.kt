@@ -1,6 +1,7 @@
 package io.qplay.quickpicksgameservice.exception
 
 import jakarta.validation.ConstraintViolationException
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
@@ -10,6 +11,8 @@ class PlayerNotAllowlistedException : RuntimeException("Service coming soon")
 
 @ControllerAdvice
 class GlobalExceptionHandler {
+
+    private val log = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
 
     @ExceptionHandler(PlayerNotAllowlistedException::class)
     fun handlePlayerNotAllowlistedException(e: PlayerNotAllowlistedException): ResponseEntity<Map<String, String>> {
@@ -31,6 +34,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception::class)
     fun handleGeneralException(e: Exception): ResponseEntity<ApiErrorEnvelope> {
+        log.error("Unhandled exception in request processing", e)
         return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR", "An unexpected error occurred")
     }
 
