@@ -52,14 +52,17 @@ data class RoundResponse(
             slateId = round.slate.id ?: throw IllegalStateException("Slate ID must not be null for response mapping"),
             status = round.status.name,
             jackpotPoolPence = round.jackpotPoolPence,
-            matches = round.slate.matches.map { 
+            matches = round.slate.matches.map {
                 MatchResponse(
                     id = it.id ?: throw IllegalStateException("Fixture ID must not be null for response mapping"),
                     providerMatchId = it.providerMatchId,
                     homeTeam = it.homeTeam,
                     awayTeam = it.awayTeam,
                     kickOff = it.kickOff,
-                    league = it.league
+                    league = it.league,
+                    status = it.status,
+                    regulationResultHome = it.regulationResultHome,
+                    regulationResultAway = it.regulationResultAway
                 )
             }
         )

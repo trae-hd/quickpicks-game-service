@@ -143,7 +143,10 @@ data class SlateResponse(
                     homeTeam = it.homeTeam,
                     awayTeam = it.awayTeam,
                     kickOff = it.kickOff,
-                    league = it.league
+                    league = it.league,
+                    status = it.status,
+                    regulationResultHome = it.regulationResultHome,
+                    regulationResultAway = it.regulationResultAway
                 )
             },
             // Populated by feed ingestor reconciliation when kick-off times change after a match is added
@@ -158,5 +161,8 @@ data class MatchResponse(
     val homeTeam: String,
     val awayTeam: String,
     val kickOff: Instant,
-    val league: String
+    val league: String,
+    val status: String,
+    val regulationResultHome: Int?,
+    val regulationResultAway: Int?
 )
