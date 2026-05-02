@@ -60,16 +60,23 @@ class SecurityConfig(
         val config = object : CorsConfiguration() {
             override fun checkOrigin(origin: String?): String? {
                 if (origin == null) return null
-                
+
                 val tenantId = TenantContext.getTenantId()
                 if (tenantId == null) {
-                    // Fallback for non-tenant requests or early filter chain
-                    return super.checkOrigin(origin)
+                    // No tenant context — this is a CORS preflight (OPTIONS) which carries no JWT,
+                    // so the JWT filters haven't run yet. Check the origin against all tenants so
+                    // that the browser's preflight passes and the real request is allowed through.
+                    val allowed = tenantRepository.findAll().any { tenant ->
+                        val origins = runCatching { objectMapper.readValue<List<String>>(tenant.allowedHostOrigins) }
+                            .getOrDefault(emptyList())
+                        origins.contains("*") || origins.contains(origin)
+                    }
+                    return if (allowed) origin else null
                 }
 
                 val tenant = tenantRepository.findById(tenantId).orElse(null) ?: return null
                 val allowedOrigins: List<String> = objectMapper.readValue(tenant.allowedHostOrigins)
-                
+
                 return if (allowedOrigins.contains("*") || allowedOrigins.contains(origin)) {
                     origin
                 } else {

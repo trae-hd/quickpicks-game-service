@@ -12,6 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 import java.util.Base64
@@ -19,7 +20,8 @@ import java.util.Base64
 @Component
 class JwtAuthFilter(
     private val tenantRepository: TenantRepository,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    @Value("\${app.security.operator-jwt-secret}") private val operatorJwtSecret: String
 ) : OncePerRequestFilter() {
 
     override fun doFilterInternal(
@@ -56,8 +58,12 @@ class JwtAuthFilter(
                 return
             }
 
-            // Step 2: Full signature verification with the tenant-specific secret.
-            val signingKey = Keys.hmacShaKeyFor(tenant.jwtSecret.toByteArray())
+            // Step 2: Full signature verification.
+            // Preview JWTs are minted by the frontend using the operator secret — use that for
+            // verification. All other player JWTs use the tenant-specific secret.
+            val isPreview = objectMapper.readTree(payloadJson).get("preview")?.asBoolean() == true
+            val secretBytes = if (isPreview) operatorJwtSecret.toByteArray() else tenant.jwtSecret.toByteArray()
+            val signingKey = Keys.hmacShaKeyFor(secretBytes)
             val claims = Jwts.parser()
                 .verifyWith(signingKey)
                 .build()
