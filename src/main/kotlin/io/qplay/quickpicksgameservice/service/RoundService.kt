@@ -43,12 +43,18 @@ class RoundService(
         return savedRound
     }
 
+    @Transactional(readOnly = true)
     fun getRound(roundId: UUID): Round {
-        return roundRepository.findById(roundId)
+        val round = roundRepository.findById(roundId)
             .orElseThrow { IllegalArgumentException("Round not found") }
+        round.slate.matches.size // force lazy collection init before session closes
+        return round
     }
 
+    @Transactional(readOnly = true)
     fun findOpenRounds(): List<Round> {
-        return roundRepository.findByStatus(RoundStatus.OPEN)
+        val rounds = roundRepository.findByStatus(RoundStatus.OPEN)
+        rounds.forEach { it.slate.matches.size } // force lazy collection init before session closes
+        return rounds
     }
 }
