@@ -4,6 +4,7 @@ import jakarta.validation.ConstraintViolationException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 
@@ -30,6 +31,11 @@ class GlobalExceptionHandler {
             it.propertyPath.toString() to it.message 
         }
         return buildErrorResponse(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", "Constraint violation", details)
+    }
+
+    @ExceptionHandler(AccessDeniedException::class)
+    fun handleAccessDeniedException(e: AccessDeniedException): ResponseEntity<ApiErrorEnvelope> {
+        return buildErrorResponse(HttpStatus.FORBIDDEN, "FORBIDDEN", "Unauthorised")
     }
 
     @ExceptionHandler(Exception::class)

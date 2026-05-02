@@ -73,6 +73,7 @@ class SlateService(
         slate.status = SlateStatus.PUBLISHED
         slate.approvedBy = approvedBy
         val savedSlate = slateRepository.save(slate)
+        savedSlate.matches.size // force lazy collection init before session closes
 
         val round = roundService.createRound(savedSlate)
         

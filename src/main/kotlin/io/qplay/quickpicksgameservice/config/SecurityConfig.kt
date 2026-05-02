@@ -42,7 +42,7 @@ class SecurityConfig(
                 auth
                     .requestMatchers("/actuator/**").permitAll()
                     .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                    .requestMatchers("/api/v1/admin/**").hasAnyRole("TENANT_ADMIN", "PLATFORM_ADMIN")
+                    .requestMatchers("/api/v1/admin/**").hasAnyRole("TENANT_ADMIN", "PLATFORM_ADMIN", "REVIEWER")
                     .requestMatchers("/api/v1/host/**").hasRole("HOST_FEED")
                     .anyRequest().authenticated()
             }

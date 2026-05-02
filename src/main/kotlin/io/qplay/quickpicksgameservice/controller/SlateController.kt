@@ -7,6 +7,7 @@ import io.qplay.quickpicksgameservice.service.MatchData
 import io.qplay.quickpicksgameservice.service.SlateService
 import io.qplay.quickpicksgameservice.security.OperatorJwtClaims
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.context.annotation.Profile
 import org.springframework.http.ResponseEntity
@@ -25,8 +26,15 @@ class SlateController(
     private val slateService: SlateService
 ) {
     @GetMapping
-    @Operation(summary = "List slates for this tenant, optionally filtered by status")
-    fun listSlates(@RequestParam(required = false) status: String?): ApiResponse<List<SlateResponse>> {
+    @PreAuthorize("hasAnyRole('PLATFORM_ADMIN', 'TENANT_ADMIN', 'REVIEWER')")
+    @Operation(
+        summary = "List slates",
+        description = "Returns all slates for the current tenant ordered by creation date descending. Both TENANT_ADMIN and REVIEWER roles receive all tenant slates regardless of creator. Optionally filter by status to retrieve only DRAFT, SUBMITTED, or PUBLISHED slates."
+    )
+    fun listSlates(
+        @Parameter(description = "Filter by slate status. One of: DRAFT, SUBMITTED, PUBLISHED. If omitted, all statuses are returned.")
+        @RequestParam(required = false) status: String?
+    ): ApiResponse<List<SlateResponse>> {
         val statusEnum = status?.let {
             runCatching { SlateStatus.valueOf(it.uppercase()) }
                 .getOrElse { throw IllegalArgumentException("Invalid status: $it. Valid values: ${SlateStatus.values().joinToString()}") }
@@ -35,7 +43,11 @@ class SlateController(
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Get a single slate by ID")
+    @PreAuthorize("hasAnyRole('PLATFORM_ADMIN', 'TENANT_ADMIN', 'REVIEWER')")
+    @Operation(
+        summary = "Get slate by ID",
+        description = "Returns a single slate by its UUID. Accessible to TENANT_ADMIN and REVIEWER roles."
+    )
     fun getSlate(@PathVariable id: UUID): ApiResponse<SlateResponse> {
         return ApiResponse(SlateResponse.fromDomain(slateService.getSlate(id)))
     }
@@ -81,7 +93,11 @@ class SlateController(
     }
 
     @PostMapping("/{id}/approve")
-    @Operation(summary = "Approve and publish a slate (requires different operator than creator)")
+    @PreAuthorize("hasAnyRole('PLATFORM_ADMIN', 'TENANT_ADMIN', 'REVIEWER')")
+    @Operation(
+        summary = "Approve and publish a slate",
+        description = "Approves a SUBMITTED slate and publishes it, creating a live round. The approving operator's identity (JWT sub) must differ from the operator who submitted the slate — the two-eyes rule is enforced and returns 409 Conflict if violated. Accessible to TENANT_ADMIN and REVIEWER roles."
+    )
     fun approveAndPublish(@PathVariable id: UUID, @AuthenticationPrincipal claims: OperatorJwtClaims): ApiResponse<SlateResponse> {
         val slate = slateService.approveAndPublish(id, claims.operatorId)
         return ApiResponse(SlateResponse.fromDomain(slate))
