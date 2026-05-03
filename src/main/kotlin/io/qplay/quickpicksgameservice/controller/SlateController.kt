@@ -92,6 +92,15 @@ class SlateController(
         return ApiResponse(SlateResponse.fromDomain(slate))
     }
 
+    @PostMapping("/{id}/archive")
+    @Operation(
+        summary = "Archive a DRAFT slate",
+        description = "Moves a DRAFT slate to ARCHIVED status. Archived slates are excluded from the default slate list and cannot be edited or submitted. Use ?status=ARCHIVED to retrieve them."
+    )
+    fun archiveSlate(@PathVariable id: UUID): ApiResponse<SlateResponse> {
+        return ApiResponse(SlateResponse.fromDomain(slateService.archiveSlate(id)))
+    }
+
     @PostMapping("/{id}/approve")
     @PreAuthorize("hasAnyRole('PLATFORM_ADMIN', 'TENANT_ADMIN', 'REVIEWER')")
     @Operation(
@@ -127,6 +136,7 @@ data class SlateResponse(
     val status: String,
     val roundWindowStart: Instant,
     val roundWindowEnd: Instant,
+    val isWindowExpired: Boolean,
     val matches: List<MatchResponse>,
     val changedFixtures: List<ChangedFixture>
 ) {
@@ -136,6 +146,7 @@ data class SlateResponse(
             status = slate.status.name,
             roundWindowStart = slate.roundWindowStart,
             roundWindowEnd = slate.roundWindowEnd,
+            isWindowExpired = slate.roundWindowEnd.isBefore(Instant.now()),
             matches = slate.matches.map {
                 MatchResponse(
                     id = it.id ?: throw IllegalStateException("Fixture ID must not be null for response mapping"),

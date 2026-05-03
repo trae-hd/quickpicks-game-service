@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import java.util.*
 
 interface SlateRepository : JpaRepository<Slate, UUID> {
-    fun findByTenantId(tenantId: String): List<Slate>
+    fun findByTenantIdAndStatusNot(tenantId: String, status: SlateStatus): List<Slate>
     fun findByTenantIdAndStatus(tenantId: String, status: SlateStatus): List<Slate>
 }
 

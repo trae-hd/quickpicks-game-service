@@ -4,5 +4,6 @@ enum class SlateStatus {
     DRAFT,
     SUBMITTED,
     PUBLISHED,
-    CANCELLED
+    CANCELLED,
+    ARCHIVED
 }

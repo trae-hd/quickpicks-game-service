@@ -98,10 +98,24 @@ class SlateService(
         val slates = if (status != null) {
             slateRepository.findByTenantIdAndStatus(tenantId, status)
         } else {
-            slateRepository.findByTenantId(tenantId)
+            // Default excludes ARCHIVED — operators must filter by status=ARCHIVED to see them
+            slateRepository.findByTenantIdAndStatusNot(tenantId, SlateStatus.ARCHIVED)
         }
         slates.forEach { it.matches.size } // force lazy collection init before session closes
         return slates
+    }
+
+    @Transactional
+    fun archiveSlate(slateId: UUID): Slate {
+        val slate = slateRepository.findById(slateId)
+            .orElseThrow { IllegalArgumentException("Slate not found") }
+        require(slate.status == SlateStatus.DRAFT) {
+            "Only DRAFT slates can be archived (current status: ${slate.status})"
+        }
+        slate.status = SlateStatus.ARCHIVED
+        val saved = slateRepository.save(slate)
+        saved.matches.size // force lazy collection init before session closes
+        return saved
     }
 
     @Transactional
