@@ -25,6 +25,7 @@ class FixtureCacheController(
     private val fixtureCacheSyncService: FixtureCacheSyncService
 ) {
     @GetMapping("/seasons")
+    @PreAuthorize("hasAnyRole('TENANT_ADMIN', 'PLATFORM_ADMIN', 'REVIEWER')")
     @Operation(
         summary = "List available seasons",
         description = "Returns the distinct list of seasons present in the fixture cache, ordered most recent first. Use the returned values as the season parameter for the leagues and fixture search endpoints."
@@ -35,6 +36,7 @@ class FixtureCacheController(
     }
 
     @GetMapping("/leagues")
+    @PreAuthorize("hasAnyRole('TENANT_ADMIN', 'PLATFORM_ADMIN', 'REVIEWER')")
     @Operation(
         summary = "List available leagues",
         description = "Returns the distinct list of leagues present in the fixture cache, ordered alphabetically. Pass the season parameter to restrict the list to leagues available for a specific season. Each entry includes both the provider league ID (for API calls) and the display name (for UI rendering)."

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @Profile("api")
 @RequestMapping("/api/v1/admin/fixtures")
-@PreAuthorize("hasRole('TENANT_ADMIN')")
+@PreAuthorize("hasAnyRole('TENANT_ADMIN', 'PLATFORM_ADMIN', 'REVIEWER')")
 @Tag(name = "Admin - Fixtures", description = "Operator fixture search for the Slate Builder UI")
 class FixtureSearchController(
     private val apiFootballClient: ApiFootballClient,

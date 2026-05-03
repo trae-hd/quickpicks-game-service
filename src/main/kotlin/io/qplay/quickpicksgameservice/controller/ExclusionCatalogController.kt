@@ -21,6 +21,7 @@ class ExclusionCatalogController(
     private val repository: TenantExclusionCatalogRepository
 ) {
     @GetMapping
+    @PreAuthorize("hasAnyRole('TENANT_ADMIN', 'PLATFORM_ADMIN', 'REVIEWER')")
     @Operation(summary = "List active exclusion flags for this tenant")
     fun getCatalog(): ApiResponse<List<TenantExclusionCatalog>> {
         val tenantId = TenantContext.getTenantId() ?: throw IllegalStateException("No tenant context")
