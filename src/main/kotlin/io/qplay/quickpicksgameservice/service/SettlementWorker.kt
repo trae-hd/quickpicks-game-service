@@ -14,8 +14,15 @@ class SettlementWorker(
     private val resultingService: ResultingService,
     private val settlementService: SettlementService,
     private val firstEntryFreeService: FirstEntryFreeService,
+    private val roundService: RoundService,
     private val jdbcTemplate: JdbcTemplate
 ) {
+    @Scheduled(fixedDelayString = "\${app.scheduling.round-autolock-delay-ms:60000}")
+    @SchedulerLock(name = "round-autolock", lockAtMostFor = "55s", lockAtLeastFor = "10s")
+    fun autoLockExpiredRounds() {
+        roundService.autoLockExpiredRounds()
+    }
+
     @Scheduled(fixedDelayString = "\${app.scheduling.resulting-delay-ms:60000}")
     @SchedulerLock(name = "resulting-poll", lockAtMostFor = "55s", lockAtLeastFor = "10s")
     fun pollResults() {
