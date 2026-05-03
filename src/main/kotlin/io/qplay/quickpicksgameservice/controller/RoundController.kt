@@ -9,6 +9,7 @@ import io.qplay.quickpicksgameservice.tenant.TenantContext
 import org.springframework.context.annotation.Profile
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
+import java.time.Instant
 import java.util.*
 
 @RestController
@@ -44,6 +45,8 @@ data class RoundResponse(
     val slateId: UUID,
     val status: String,
     val jackpotPoolPence: Long,
+    val roundWindowStart: Instant,
+    val roundWindowEnd: Instant,
     val matches: List<MatchResponse>
 ) {
     companion object {
@@ -52,6 +55,8 @@ data class RoundResponse(
             slateId = round.slate.id ?: throw IllegalStateException("Slate ID must not be null for response mapping"),
             status = round.status.name,
             jackpotPoolPence = round.jackpotPoolPence,
+            roundWindowStart = round.slate.roundWindowStart,
+            roundWindowEnd = round.slate.roundWindowEnd,
             matches = round.slate.matches.map {
                 MatchResponse(
                     id = it.id ?: throw IllegalStateException("Fixture ID must not be null for response mapping"),

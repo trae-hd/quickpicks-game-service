@@ -55,7 +55,7 @@ class RoundService(
 
     @Transactional(readOnly = true)
     fun findOpenRounds(): List<Round> {
-        val rounds = roundRepository.findByStatusIn(listOf(RoundStatus.OPEN, RoundStatus.LOCKED))
+        val rounds = roundRepository.findByStatusInOrderByCreatedAtDesc(listOf(RoundStatus.OPEN, RoundStatus.LOCKED))
         rounds.forEach { it.slate.matches.size } // force lazy collection init before session closes
         return rounds
     }
